@@ -1,0 +1,46 @@
+name: Daily Game Poll v2
+
+on:
+  schedule:
+    - cron: '*/2 * * * *' # Каждый день в 15:17 МСК
+  workflow_dispatch:
+
+jobs:
+  send-poll:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Скачиваем репозиторий
+        uses: actions/checkout@v4
+
+      - name: Настраиваем Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Устанавливаем зависимости
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+
+      - name: Проверяем секреты
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: |
+          test -n "$BOT_TOKEN" || {
+            echo "::error::BOT_TOKEN не задан"
+            exit 1
+          }
+          test -n "$CHAT_ID" || {
+            echo "::error::CHAT_ID не задан"
+            exit 1
+          }
+
+      - name: Отправляем голосовалку
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+        run: python poll.py

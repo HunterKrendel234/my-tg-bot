@@ -1,8 +1,6 @@
 name: Daily Game Poll v2
 
 on:
-  schedule:
-    - cron: '17 12 * * *' # Каждый день в 15:17 МСК
   workflow_dispatch:
 
 jobs:
